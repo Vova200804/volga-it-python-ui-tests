@@ -47,20 +47,29 @@
 
 ## Установка и запуск
 
-Нужны Python 3.12+ и Chrome. Selenium Manager получает совместимый драйвер при первом запуске; для загрузки потребуется доступ в интернет. В Windows откройте папку проекта в командной строке или PowerShell и выполните:
+Нужны Python 3.12+, Chrome и доступ в интернет при первом запуске: Selenium Manager загрузит совместимый драйвер. Если репозиторий ещё не скачан, откройте командную строку Windows (`cmd`) и выполните:
 
 ```bat
-.\run-tests.cmd
+cd /d "%USERPROFILE%"
+git clone https://github.com/Vova200804/volga-it-python-ui-tests.git
+cd volga-it-python-ui-tests
 ```
 
-`.\run-tests.cmd` запускает PowerShell-скрипт только для этого процесса с разрешением выполнения; менять системную политику PowerShell не требуется. Скрипт находит Python 3.12+ через стандартный каталог Windows, Python Launcher или PATH, создаёт `.venv` при первом запуске, устанавливает зависимости и очищает прошлые результаты Allure. При следующих запусках используется готовое окружение. Выборочный запуск и показ окна браузера:
+Если папка проекта уже есть в домашней папке, откройте `cmd` и обновите локальную копию:
 
 ```bat
-.\run-tests.cmd -Marker calendars
-.\run-tests.cmd -Marker modals -Headed
-.\run-tests.cmd -Marker ads
-.\run-tests.cmd -Marker form_fields
+cd /d "%USERPROFILE%\volga-it-python-ui-tests"
+git pull
 ```
+
+Из папки проекта запустите отдельный набор с видимым окном Chrome или все тесты:
+
+```bat
+run-tests.cmd -Marker modals -Headed
+run-tests.cmd -Headed
+```
+
+Для других страниц используйте `-Marker calendars`, `-Marker ads` или `-Marker form_fields`. Без `-Headed` браузер работает в фоновом режиме. `run-tests.cmd` разрешает выполнение PowerShell-скрипта только для этого процесса; менять системную политику не требуется. Скрипт находит Python 3.12+ через стандартный каталог Windows, Python Launcher или PATH, создаёт `.venv` при первом запуске, устанавливает зависимости и очищает прошлые результаты Allure. При следующих запусках используется готовое окружение. Если проект находится в другой папке, укажите её в команде `cd`.
 
 GitHub Actions запускает весь набор на Windows с Python 3.12 и Chrome при каждом изменении репозитория. Результаты Allure сохраняются как артефакт запуска.
 
