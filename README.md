@@ -1,6 +1,6 @@
 # Волга-IT: автоматизация тестирования на Python
 
-Автотесты для страниц [Practice Automation](https://practice-automation.com/), реализованные на Python 3.12+, Selenium и Pytest с Page Object Model. Каждый тест запускается в отдельной сессии Chrome. В Allure у сценариев есть читаемые названия, ожидаемые результаты и шаги; при упавших тестах сохраняются URL и скриншот.
+Автотесты для страниц [Practice Automation](https://practice-automation.com/), реализованные на Python 3.12+, Selenium и Pytest с Page Object Model. Каждый тест запускается в отдельной сессии Chrome. В Allure у сценариев есть читаемые названия, ожидаемые результаты и шаги открытия страницы и проверки результата; действия с виджетами также отмечены отдельными шагами; при упавших тестах сохраняются URL и скриншот.
 
 ## Что проверяется
 
@@ -47,28 +47,28 @@
 
 ## Установка и запуск
 
-Нужны Python 3.12+ и Chrome. Selenium Manager получает совместимый драйвер при первом запуске; для загрузки потребуется доступ в интернет. Основной сценарий PowerShell находит установленную версию Python 3.12+ через стандартный каталог Windows, Python Launcher или PATH, создаёт `.venv` при первом запуске и очищает прошлый Allure запуск:
+Нужны Python 3.12+ и Chrome. Selenium Manager получает совместимый драйвер при первом запуске; для загрузки потребуется доступ в интернет. В Windows откройте папку проекта в командной строке или PowerShell и выполните:
 
-```powershell
-./run-tests.ps1
+```bat
+.\run-tests.cmd
 ```
 
-Выборочный запуск:
+`.\run-tests.cmd` запускает PowerShell-скрипт только для этого процесса с разрешением выполнения; менять системную политику PowerShell не требуется. Скрипт находит Python 3.12+ через стандартный каталог Windows, Python Launcher или PATH, создаёт `.venv` при первом запуске, устанавливает зависимости и очищает прошлые результаты Allure. При следующих запусках используется готовое окружение. Выборочный запуск и показ окна браузера:
 
-```powershell
-./run-tests.ps1 -Marker calendars
-./run-tests.ps1 -Marker modals
-./run-tests.ps1 -Marker ads
-./run-tests.ps1 -Marker form_fields
+```bat
+.\run-tests.cmd -Marker calendars
+.\run-tests.cmd -Marker modals -Headed
+.\run-tests.cmd -Marker ads
+.\run-tests.cmd -Marker form_fields
 ```
 
 GitHub Actions запускает весь набор на Windows с Python 3.12 и Chrome при каждом изменении репозитория. Результаты Allure сохраняются как артефакт запуска.
 
-Для ручной установки укажите конкретный интерпретатор Python 3.12+ (например, `py -3.12 -m venv .venv`), установите зависимости из `requirements.txt` и запускайте Pytest с `--clean-alluredir`. `./run-tests.ps1 -Headed` запускает Chrome с окном. Чтобы использовать заданный Chrome/драйвер, задайте переменные `CHROME_BINARY` и `CHROMEDRIVER`.
+Для ручной установки укажите конкретный интерпретатор Python 3.12+ (например, `py -3.12 -m venv .venv`), установите зависимости из `requirements.txt` и запускайте Pytest с `--clean-alluredir`. Чтобы использовать заданный Chrome/драйвер, задайте переменные `CHROME_BINARY` и `CHROMEDRIVER`.
 
 ## Allure
 
-После `./run-tests.ps1` файлы результатов находятся в `allure-results`. Соберите отчёт через `./make-allure-report.ps1` (нужны Allure CLI или pnpm и Java); HTML появится в `allure-report`. Архив последнего успешного отчёта включён в проект как `allure-report.zip`. Скриншоты ошибок сохраняются в `artifacts/failures/` и прикладываются к Allure.
+После `.\run-tests.cmd` файлы результатов находятся в `allure-results`. Соберите отчёт через `.\make-allure-report.cmd` (нужны Allure CLI или pnpm и Java); HTML появится в `allure-report`. Архив последнего успешного отчёта включён в проект как `allure-report.zip`. Скриншоты ошибок сохраняются в `artifacts/failures/` и прикладываются к Allure.
 
 ## Ограничения
 

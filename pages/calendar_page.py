@@ -3,6 +3,7 @@ from __future__ import annotations
 import calendar
 from datetime import date
 
+import allure
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.support import expected_conditions as EC
@@ -20,6 +21,7 @@ class CalendarPage(BasePage):
     def field(self):
         return self.wait.until(EC.visibility_of_element_located(self.FIELD))
 
+    @allure.step("Открыть виджет выбора даты")
     def open_picker(self):
         field = self.field()
         field.click()
@@ -31,6 +33,7 @@ class CalendarPage(BasePage):
         year = int(self.driver.find_element(By.CSS_SELECTOR, ".dp-cal-year").text)
         return date(year, list(calendar.month_name).index(month_name), 1)
 
+    @allure.step("Выбрать дату {target} в календаре")
     def choose(self, target: date) -> str:
         field = self.field()
         visible_pickers = self.driver.find_elements(*self.PICKER)

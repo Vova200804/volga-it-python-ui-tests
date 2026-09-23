@@ -62,7 +62,9 @@ def driver() -> webdriver.Chrome:
 @pytest.fixture
 def open_page(driver: webdriver.Chrome):
     def open_url(path: str) -> webdriver.Chrome:
-        driver.get(f"https://practice-automation.com/{path.strip('/')}/")
+        url = f"https://practice-automation.com/{path.strip('/')}/"
+        with allure.step(f"Открыть страницу {url}"):
+            driver.get(url)
         return driver
 
     return open_url

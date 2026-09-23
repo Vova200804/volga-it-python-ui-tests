@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import allure
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.support import expected_conditions as EC
@@ -14,12 +15,14 @@ class AdsPage(BasePage):
     def __init__(self, driver: WebDriver):
         super().__init__(driver)
 
+    @allure.step("Дождаться появления рекламного окна")
     def wait_for_ad(self):
         ad = self.wait.until(EC.visibility_of_element_located(self.AD))
         self.wait.until(EC.visibility_of(ad.find_element(By.CSS_SELECTOR, ".pum-title")))
         self.wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "#pum-1272 .pum-close")))
         return ad
 
+    @allure.step("Измерить появление рекламы после {earliest_seconds} секунд")
     def wait_for_ad_after(self, earliest_seconds: float, timeout: float = 12):
         """Return the ad and its measured activation time from navigation start."""
         if earliest_seconds < 0 or timeout <= earliest_seconds:
@@ -57,6 +60,7 @@ class AdsPage(BasePage):
             lambda driver: driver.execute_script("return performance.now()") / 1000 >= seconds
         )
 
+    @allure.step("Закрыть рекламное окно")
     def close_ad(self):
         ad = self.wait_for_ad()
         ad.find_element(By.CSS_SELECTOR, ".pum-close").click()

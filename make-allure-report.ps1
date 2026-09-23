@@ -1,7 +1,7 @@
-$ErrorActionPreference = "Stop"
+﻿$ErrorActionPreference = "Stop"
 
 if (-not (Test-Path "allure-results")) {
-    throw "Сначала запустите .\run-tests.ps1, чтобы создать allure-results."
+    throw "Сначала запустите .\run-tests.cmd, чтобы создать allure-results."
 }
 
 if (Get-Command allure -ErrorAction SilentlyContinue) {
