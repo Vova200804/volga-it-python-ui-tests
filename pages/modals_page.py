@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import allure
+from selenium.common.exceptions import ElementClickInterceptedException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.support import expected_conditions as EC
@@ -38,4 +39,24 @@ class ModalsPage(BasePage):
 
     @allure.step("Нажать кнопку отправки формы")
     def form_submit(self):
-        self.driver.find_element(By.CSS_SELECTOR, "#pum-674 button[type='submit']").click()
+        def click_when_visible(driver):
+            button = driver.find_element(By.CSS_SELECTOR, "#pum-674 button[type='submit']")
+            driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", button)
+            if not button.is_displayed() or not button.is_enabled():
+                return False
+            center_is_clear = driver.execute_script(
+                "const b = arguments[0], r = b.getBoundingClientRect();"
+                "const x = (r.left + r.right) / 2, y = (r.top + r.bottom) / 2;"
+                "return x >= 0 && x < innerWidth && y >= 0 && y < innerHeight "
+                "&& b.contains(document.elementFromPoint(x, y));",
+                button,
+            )
+            if not center_is_clear:
+                return False
+            try:
+                button.click()
+            except ElementClickInterceptedException:
+                return False
+            return True
+
+        self.wait.until(click_when_visible)
