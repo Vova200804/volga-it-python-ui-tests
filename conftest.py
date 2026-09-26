@@ -37,6 +37,7 @@ def prepare_failure_artifacts() -> None:
 @pytest.fixture
 def driver() -> webdriver.Chrome:
     options = Options()
+    options.page_load_strategy = "eager"
     options.add_argument("--window-size=1440,1000")
     options.add_argument("--lang=en-US")
     if os.getenv("HEADLESS", "1") != "0":
