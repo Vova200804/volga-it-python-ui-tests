@@ -14,12 +14,22 @@ class ModalsPage(BasePage):
     FORM_TRIGGER = (By.ID, "formModal")
     SIMPLE = (By.ID, "pum-1318")
     FORM = (By.ID, "pum-674")
+    NAME = (By.CSS_SELECTOR, "#pum-674 input.name")
+    EMAIL = (By.CSS_SELECTOR, "#pum-674 input.email")
+    MESSAGE = (By.CSS_SELECTOR, "#pum-674 textarea")
+    NAME_ERROR = (By.CSS_SELECTOR, "#pum-674 .grunion-field-name-wrap .contact-form__input-error")
+    EMAIL_ERROR = (By.CSS_SELECTOR, "#pum-674 .grunion-field-email-wrap .contact-form__input-error")
+    SUCCESS = (By.CSS_SELECTOR, "#pum-674 .contact-form-submission.submission-success h4")
 
     def __init__(self, driver: WebDriver):
         super().__init__(driver)
 
     @allure.step("Открыть простое модальное окно")
     def open_simple(self):
+        self.wait.until(
+            lambda driver: "pum-trigger"
+            in driver.find_element(*self.SIMPLE_TRIGGER).get_attribute("class")
+        )
         self.wait.until(EC.element_to_be_clickable(self.SIMPLE_TRIGGER)).click()
         modal = self.wait.until(EC.visibility_of_element_located(self.SIMPLE))
         self.wait.until(EC.visibility_of(modal.find_element(By.CSS_SELECTOR, ".pum-title")))
@@ -27,6 +37,10 @@ class ModalsPage(BasePage):
 
     @allure.step("Открыть модальное окно с формой")
     def open_form(self):
+        self.wait.until(
+            lambda driver: "pum-trigger"
+            in driver.find_element(*self.FORM_TRIGGER).get_attribute("class")
+        )
         self.wait.until(EC.element_to_be_clickable(self.FORM_TRIGGER)).click()
         modal = self.wait.until(EC.visibility_of_element_located(self.FORM))
         self.wait.until(EC.visibility_of(modal.find_element(By.CSS_SELECTOR, ".pum-title")))
@@ -60,3 +74,18 @@ class ModalsPage(BasePage):
             return True
 
         self.wait.until(click_when_visible)
+
+    @allure.step("Заполнить форму в модальном окне")
+    def fill_form(self, name: str, email: str, message: str) -> None:
+        self.wait.until(EC.visibility_of_element_located(self.NAME)).send_keys(name)
+        self.wait.until(EC.visibility_of_element_located(self.EMAIL)).send_keys(email)
+        self.wait.until(EC.visibility_of_element_located(self.MESSAGE)).send_keys(message)
+
+    def visible_name_error(self) -> str:
+        return self.wait.until(EC.visibility_of_element_located(self.NAME_ERROR)).text
+
+    def visible_email_error(self) -> str:
+        return self.wait.until(EC.visibility_of_element_located(self.EMAIL_ERROR)).text
+
+    def success_message(self) -> str:
+        return self.wait.until(EC.visibility_of_element_located(self.SUCCESS)).text

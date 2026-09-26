@@ -94,22 +94,23 @@ class TestModals:
         with allure.step("Отправить форму без обязательного имени"):
             page.form_submit()
         with allure.step('Проверить: Попытка отправить форму без имени показывает сообщение об обязательном поле.'):
-            assert page.driver.find_element(By.CSS_SELECTOR, "#pum-674 .contact-form__input-error").text == "This field is required."
+            assert page.visible_name_error() == "This field is required."
 
     @allure.story("Негативные сценарии")
     @allure.title("Некорректная почта в модалке отклоняется")
-    @allure.description("Браузер помечает адрес без корректного формата как невалидный.")
+    @allure.description("После отправки с некорректной почтой форма показывает ошибку и не подтверждает отправку.")
     def test_form_modal_email_rejects_invalid_address(self, open_page):
         page = ModalsPage(open_page("modals"))
         modal = page.open_form()
         with allure.step("Заполнить имя, ввести некорректную почту и отправить форму"):
-            modal.find_element(By.ID, "g1051-name").send_keys("QA Test")
-            email = modal.find_element(By.ID, "g1051-email")
+            modal.find_element(*page.NAME).send_keys("QA Test")
+            email = modal.find_element(*page.EMAIL)
             email.send_keys("not-an-email")
             page.form_submit()
-        with allure.step('Проверить: Браузер помечает адрес без корректного формата как невалидный.'):
+        with allure.step('Проверить: Показана ошибка адреса, успешной отправки нет.'):
             assert page.driver.execute_script("return arguments[0].validity.typeMismatch", email) is True
-            assert page.driver.execute_script("return arguments[0].checkValidity()", email) is False
+            assert page.visible_email_error() == "Please enter a valid email address"
+            assert not any(message.is_displayed() for message in page.driver.find_elements(*page.SUCCESS))
 
     @allure.story("Негативные сценарии")
     @allure.title("Закрытие неотправленной формы не показывает успех")
@@ -123,3 +124,14 @@ class TestModals:
         success_messages = page.driver.find_elements(By.CSS_SELECTOR, "#pum-674 .contact-form-submission")
         with allure.step('Проверить: При закрытии формы без отправки не появляется сообщение об успешной отправке.'):
             assert not any(message.is_displayed() for message in success_messages)
+
+    @allure.story("Позитивные сценарии")
+    @allure.title("Заполненная форма подтверждает отправку")
+    @allure.description("Ввод корректного имени, почты и сообщения приводит к видимому подтверждению.")
+    def test_form_modal_accepts_valid_submission(self, open_page):
+        page = ModalsPage(open_page("modals"))
+        page.open_form()
+        page.fill_form("QA Test", "qa-test@example.com", "Automated form check")
+        page.form_submit()
+        with allure.step("Проверить подтверждение после отправки"):
+            assert page.success_message().startswith("Thank you for your response.")

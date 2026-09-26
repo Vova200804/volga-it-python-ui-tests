@@ -8,13 +8,16 @@ from pages.base_page import BasePage
 
 
 class FormFieldsPage(BasePage):
+    AUTOMATION_TOOLS = (
+        By.XPATH,
+        "//form[@id='feedbackForm']//label[normalize-space()='Automation tools']/following-sibling::ul[1]/li",
+    )
+
     def __init__(self, driver: WebDriver):
         super().__init__(driver)
 
     def automation_tools(self) -> list[str]:
-        tools = self.wait.until(
-            EC.visibility_of_all_elements_located((By.CSS_SELECTOR, "#feedbackForm ul li"))
-        )
+        tools = self.wait.until(EC.visibility_of_all_elements_located(self.AUTOMATION_TOOLS))
         return [tool.text.strip() for tool in tools]
 
     def message(self):

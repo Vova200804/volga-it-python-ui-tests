@@ -14,7 +14,8 @@ if (Test-Path ".venv/Scripts/python.exe") {
     }
 }
 
-if (-not (Test-Path ".venv/Scripts/python.exe")) {
+$createdVenv = -not (Test-Path ".venv/Scripts/python.exe")
+if ($createdVenv) {
     $pythonCommand = $null
     $pythonPrefix = @()
     foreach ($minor in 30..12) {
@@ -47,13 +48,21 @@ if (-not (Test-Path ".venv/Scripts/python.exe")) {
     if (-not $pythonCommand) {
         throw "Нужен установленный Python 3.12 или новее."
     }
-    Write-Host "[2/3] Creating .venv with $pythonCommand and installing dependencies. This can take several minutes on the first run..."
+    Write-Host "[2/3] Creating .venv with $pythonCommand. This can take several minutes on the first run..."
     & $pythonCommand @pythonPrefix -m venv .venv
     if ($LASTEXITCODE -ne 0) { throw "Не удалось создать виртуальное окружение Python 3.12+." }
+}
+
+$requirementsHash = (Get-FileHash -Algorithm SHA256 requirements.txt).Hash
+$stampPath = ".venv/.requirements.sha256"
+$installedHash = if (Test-Path $stampPath) { (Get-Content $stampPath -Raw).Trim() } else { "" }
+if ($createdVenv -or $installedHash -ne $requirementsHash) {
+    Write-Host "[2/3] Installing or repairing dependencies..."
     & ./.venv/Scripts/python.exe -m pip install -r requirements.txt
     if ($LASTEXITCODE -ne 0) { throw "Не удалось установить зависимости из requirements.txt." }
+    Set-Content -Path $stampPath -Value $requirementsHash
 } else {
-    Write-Host "[2/3] Using existing .venv; dependencies are already installed."
+    Write-Host "[2/3] Using installed dependencies."
 }
 
 if ($Headed) { $env:HEADLESS = "0" }

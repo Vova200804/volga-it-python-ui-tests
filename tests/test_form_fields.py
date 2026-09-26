@@ -18,15 +18,16 @@ class TestFormFields:
         with allure.step("Прочитать элементы Automation Tools средствами Selenium"):
             tools = page.automation_tools()
         with allure.step('Проверить: Список инструментов считывается Selenium и вводится в Message через запятую.'):
-            assert len(tools) >= 1
-            assert all(tools)
+            assert tools == ["Selenium", "Playwright", "Cypress", "Appium", "Katalon Studio"]
         message = ", ".join(tools)
         with allure.step("Ввести имена инструментов в Message через запятую"):
             field = page.message()
             field.clear()
             field.send_keys(message)
         with allure.step('Проверить: Список инструментов считывается Selenium и вводится в Message через запятую.'):
-            assert page.message().get_attribute("value") == message
+            assert page.message().get_attribute("value") == (
+                "Selenium, Playwright, Cypress, Appium, Katalon Studio"
+            )
 
     @allure.story("Позитивные сценарии")
     @allure.title("Имя в основной форме обязательно")

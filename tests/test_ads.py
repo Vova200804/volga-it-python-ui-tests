@@ -1,6 +1,7 @@
 import allure
 import pytest
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 
 from pages.ads_page import AdsPage
 
@@ -100,7 +101,7 @@ class TestAds:
         with allure.step('Проверить: После щелчка по содержимому рекламное окно остаётся открытым.'):
             assert ad.is_displayed()
 
-    @allure.story("Негативные сценарии")
+    @allure.story("Позитивные сценарии")
     @allure.title("Закрытие рекламы сохраняет страницу")
     @allure.description("Реклама исчезает, а URL и основной заголовок страницы сохраняются.")
     def test_close_dismisses_ad_and_preserves_page(self, open_page):
@@ -111,3 +112,14 @@ class TestAds:
             assert not page.driver.find_element(*page.AD).is_displayed()
             assert page.driver.current_url == original
             assert page.driver.find_element(By.CSS_SELECTOR, "h1").is_displayed()
+
+    @allure.story("Негативные сценарии")
+    @allure.title("Escape не закрывает рекламное окно")
+    @allure.description("Нажатие Escape оставляет открытой рекламу, для которой отключено закрытие клавишей.")
+    def test_escape_does_not_dismiss_ad(self, open_page):
+        page = AdsPage(open_page("ads"))
+        ad = page.wait_for_ad()
+        with allure.step("Нажать Escape в открытом рекламном окне"):
+            page.driver.switch_to.active_element.send_keys(Keys.ESCAPE)
+        with allure.step("Проверить, что рекламное окно осталось открытым"):
+            assert ad.is_displayed()

@@ -28,3 +28,18 @@ jobs:
           name: allure-results
           path: allure-results/
           if-no-files-found: ignore
+      - uses: actions/setup-java@v4
+        if: always()
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Build Allure HTML report
+        if: always()
+        run: npx --yes allure-commandline@2.29.0 generate allure-results --clean -o allure-report
+      - name: Save Allure HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report
+          path: allure-report/
+          if-no-files-found: ignore

@@ -42,6 +42,8 @@ def driver() -> webdriver.Chrome:
     options.add_argument("--lang=en-US")
     if os.getenv("HEADLESS", "1") != "0":
         options.add_argument("--headless=new")
+    if os.getenv("CHROME_NO_SANDBOX") == "1":
+        options.add_argument("--no-sandbox")
     binary = os.getenv("CHROME_BINARY")
     if binary:
         options.binary_location = binary

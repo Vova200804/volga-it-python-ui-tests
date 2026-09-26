@@ -135,6 +135,16 @@ class TestCalendars:
             assert page.field().get_attribute("aria-invalid") != "true"
             assert page.field_error() == ""
 
+    @allure.story("Позитивные сценарии")
+    @allure.title("Выбранная дата успешно отправляется")
+    @allure.description("После выбора корректной даты и отправки формы появляется подтверждение.")
+    def test_selected_date_can_be_submitted(self, open_page):
+        page = CalendarPage(open_page("calendars"))
+        with allure.step("Ввести корректную дату"):
+            page.field().send_keys("2026-12-31", Keys.TAB)
+        with allure.step("Проверить успешную отправку"):
+            assert page.submit_and_wait_for_success().startswith("Thank you for your response.")
+
     @allure.story("Негативные сценарии")
     @pytest.mark.parametrize("value", ["not-a-date", "2026-02-30", "2026/10/14"], ids=["text", "impossible-day", "wrong-format"])
     @allure.title("Некорректная дата отклоняется")
@@ -142,12 +152,9 @@ class TestCalendars:
     def test_invalid_date_is_rejected_with_inline_error(self, open_page, value):
         page = CalendarPage(open_page("calendars"))
         with allure.step(f"Ввести нестандартное значение {value}"):
-            field = page.field()
-            field.send_keys(value, Keys.TAB)
-        page.wait.until(lambda _: field.get_attribute("aria-invalid") == "true")
-        page.wait.until(lambda _: page.field_error() == "Please enter a valid date.")
+            error = page.enter_invalid_date(value)
         with allure.step('Проверить: Текст, несуществующий день или неверный формат вызывают сообщение об ошибке.'):
-            assert page.field_error() == "Please enter a valid date."
+            assert error == "Please enter a valid date."
 
     @allure.story("Негативные сценарии")
     @allure.title("Ошибка даты исчезает после исправления")
